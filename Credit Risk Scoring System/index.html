@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Risk Predictor</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 12px;
+    width: 350px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #3b82f6;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #2563eb;
+}
+.result {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+}
+.low { background: #16a34a; }
+.medium { background: #eab308; color: black; }
+.high { background: #dc2626; }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Credit Risk Predictor</h2>
+
+    <input id="income" placeholder="Applicant Income">
+    <input id="coincome" placeholder="Coapplicant Income">
+    <input id="loan" placeholder="Loan Amount">
+    <input id="term" placeholder="Loan Term">
+    <input id="history" placeholder="Credit History (0 or 1)">
+
+    <button onclick="predict()">Predict Risk</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+</div>
+
+<script>
+async function predict() {
+    const data = {
+        ApplicantIncome: Number(document.getElementById("income").value),
+        CoapplicantIncome: Number(document.getElementById("coincome").value),
+        LoanAmount: Number(document.getElementById("loan").value),
+        Loan_Amount_Term: Number(document.getElementById("term").value),
+        Credit_History: Number(document.getElementById("history").value)
+    };
+
+    const res = await fetch("https://credit-risk-scoring-api1.onrender.com/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    const box = document.getElementById("result");
+    box.style.display = "block";
+
+    let riskClass = result.risk_level.toLowerCase();
+    box.className = "result " + riskClass;
+
+    box.innerHTML = `
+        Risk: ${result.risk_level}<br>
+        Probability: ${(result.default_probability * 100).toFixed(2)}%
+    `;
+}
+</script>
+
+</body>
+</html>
